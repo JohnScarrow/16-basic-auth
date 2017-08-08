@@ -1,20 +1,20 @@
 'use strict';
 
 const jsonParser = require('body-parser').json();
-const debug = require('debug')('cfgram:auth-router');
+const debug = require('debug')('userex:auth-router');
 const Router = require('express').Router;
 const basicAuth = require('../lib/basic-auth-mid.js');
 const User = require('../model/user.js');
 
 const authRouter = module.exports = Router();
 
-authRouter.post('/apt/signup', jsonParser, function(req, res, next) => {
+authRouter.post('/api/signup', jsonParser, function(req, res, next) {
     debug('POST: Auth Routes');
 
-    let password = req.body.password
+    let password = req.body.password;
     delete req.body.password;
 
-    let user = new Usdr(req.body);
+    let user = new User(req.body);
 
     user.generatePasswordHash(password)
         .then(user => user.save())

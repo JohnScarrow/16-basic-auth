@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const createError = require('http-errors');
 const Promise = require('bluebird');
-const debug = require('debug')('cfgram:user');
+const debug = require('debug')('userex:user');
 
 const Schema = mongoose.Schema;
 
@@ -18,8 +18,19 @@ const userSchema = Schema({
 });
 
 userSchema.methods.generatePasswordHash = function(password) {
-    debug('generate password hash');
+    debug('generate password hash', password);
 
+    return new Promise((resolve, reject) => {
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) return reject(err);
+            this.password = hash;
+            resolve(this);
+        });
+    });
+}
+
+userSchema.methods.comparePasswordHash = function(password) {
+    debug('comparePasswordHash');
     return new Promise((resolve, reject) => {
         bcrypt.compare(password, this.password, (err, valid) => {
             if (err) return reject(err);
@@ -29,7 +40,28 @@ userSchema.methods.generatePasswordHash = function(password) {
     });
 }
 
-userSchema.methods.generateFindHash() {
+userSchema.methods.generateFindHash = function() {
+    debug('generateFindHash');
+
+    return new Promise((resolve, reject) => {
+        let tries = 0;
+
+        _generateFindHash.call(this);
+
+        function _generateFindHash() {
+            this.findHash = crypto.randomBytes(32).toString('hex');
+            this.save()
+                .then(() => resolve(this.findHash))
+                .catch(err => {
+                    if (tries > 3) return reject(err);
+                    tries++;
+                    _generateFindHash.call(this);
+                });
+        }
+    });
+}
+
+userSchema.methods.generateToken = function() {
     debug('Genereate Find Hash');
 
     return new Promise((resolve, reject) => {

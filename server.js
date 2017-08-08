@@ -7,13 +7,13 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
 
-const err = require('./lib/err-mid.js');
 const authRouter = require('./route/auth-route.js');
+const err = require('./lib/error-mid.js');
 
 dotenv.load();
 
-const PORT = process.env.PORT || 3000;
 const app = express();
+const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI);
 
 app.use(cors());
@@ -24,4 +24,4 @@ app.use(err);
 
 app.listen(PORT, () => {
     debug('running on PORT: ', PORT);
-})
+});
